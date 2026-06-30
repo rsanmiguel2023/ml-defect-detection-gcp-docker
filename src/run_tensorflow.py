@@ -1,0 +1,31 @@
+"""
+Command runner for TensorFlow pipeline.
+"""
+
+import argparse
+
+from tensorflow_pipeline.train import train_tensorflow_model
+from tensorflow_pipeline.evaluate import evaluate_tensorflow_model
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Run TensorFlow ML pipeline")
+
+    parser.add_argument(
+        "--mode",
+        choices=["train", "evaluate"],
+        required=True,
+        help="Choose whether to train or evaluate the TensorFlow model"
+    )
+
+    args = parser.parse_args()
+
+    if args.mode == "train":
+        train_tensorflow_model()
+
+    if args.mode == "evaluate":
+        evaluate_tensorflow_model()
+
+
+if __name__ == "__main__":
+    main()
