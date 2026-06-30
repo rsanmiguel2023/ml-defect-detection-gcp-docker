@@ -1,0 +1,21 @@
+"""
+TensorFlow configuration for training.
+"""
+
+IMAGE_SIZE = (224, 224)
+
+BATCH_SIZE = 32
+
+EPOCHS = 20
+
+LEARNING_RATE = 0.0001
+
+RANDOM_SEED = 42
+
+MODEL_NAME = "EfficientNetB0"
+
+NUM_CLASSES = 2
+
+TRAIN_SPLIT = 0.8
+
+VALIDATION_SPLIT = 0.2

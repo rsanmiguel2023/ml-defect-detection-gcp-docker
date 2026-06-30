@@ -122,3 +122,19 @@ docs/GCP_STORAGE_SETUP.md
 ```
 
 This keeps large dataset files and credentials out of GitHub.
+
+
+## TensorFlow Training Pipeline
+
+This stage trains an EfficientNetB0 image classification model using TensorFlow.
+
+### Run training locally
+
+```bash
+python src/run_tensorflow.py --mode train
+
+### Run evaluation locally
+
+```bash
+python src/run_tensorflow.py --mode evaluate
+
