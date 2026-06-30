@@ -1,21 +1,24 @@
-from dataclasses import dataclass
-import os
+"""Project configuration loaded from environment variables."""
+
+from pathlib import Path
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
-
-@dataclass(frozen=True)
-class Settings:
-    gcp_project_id: str = os.getenv("GCP_PROJECT_ID", "")
-    gcp_bucket_name: str = os.getenv("GCP_BUCKET_NAME", "")
-    gcp_raw_prefix: str = os.getenv("GCP_RAW_PREFIX", "raw/mvtec")
-    gcp_model_prefix: str = os.getenv("GCP_MODEL_PREFIX", "models")
-    local_data_dir: str = os.getenv("LOCAL_DATA_DIR", "data/raw/mvtec")
-    local_model_dir: str = os.getenv("LOCAL_MODEL_DIR", "models")
-    image_size: int = int(os.getenv("IMAGE_SIZE", "224"))
-    batch_size: int = int(os.getenv("BATCH_SIZE", "32"))
-    epochs: int = int(os.getenv("EPOCHS", "5"))
+GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID", "")
+GCP_BUCKET_NAME = os.getenv("GCP_BUCKET_NAME", "")
+GCP_RAW_PREFIX = os.getenv("GCP_RAW_PREFIX", "raw/mvtec")
+GCP_PROCESSED_PREFIX = os.getenv("GCP_PROCESSED_PREFIX", "processed")
+GCP_MODEL_PREFIX = os.getenv("GCP_MODEL_PREFIX", "models")
+LOCAL_DATA_DIR = Path(os.getenv("LOCAL_DATA_DIR", "data/raw/mvtec"))
 
 
-settings = Settings()
+def require_env(name: str, value: str) -> str:
+    """Raise a clear error when a required environment variable is missing."""
+    if not value:
+        raise ValueError(
+            f"Missing required environment variable: {name}. "
+            "Create a .env file from .env.example and update it."
+        )
+    return value

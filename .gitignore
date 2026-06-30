@@ -26,3 +26,5 @@ reports/metrics.json
 .DS_Store
 .vscode/
 .idea/
+secrets/
+*.json

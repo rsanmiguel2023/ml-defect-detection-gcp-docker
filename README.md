@@ -112,3 +112,13 @@ See [`docs/STAGES.md`](docs/STAGES.md).
 - Trained models are excluded from GitHub.
 - GCP will store dataset and model artifacts.
 - GitHub will store source code, documentation, and reproducible setup instructions.
+
+## Stage 2: GCP Storage
+
+The project uses Google Cloud Storage for raw image data and future model artifacts. See:
+
+```text
+docs/GCP_STORAGE_SETUP.md
+```
+
+This keeps large dataset files and credentials out of GitHub.
