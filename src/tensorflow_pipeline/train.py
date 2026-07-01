@@ -22,7 +22,7 @@ def train_tensorflow_model():
     Train and save the TensorFlow EfficientNetB0 model.
     """
 
-    dataset_path = DATA_DIR / "processed"
+    dataset_path = DATA_DIR / "processed" / "bottle" / "train"
 
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     REPORT_DIR.mkdir(parents=True, exist_ok=True)

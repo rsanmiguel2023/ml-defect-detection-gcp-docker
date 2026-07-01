@@ -1,6 +1,7 @@
 """
 TensorFlow configuration for training.
 """
+DEFAULT_CATEGORY = "bottle"
 
 IMAGE_SIZE = (224, 224)
 
