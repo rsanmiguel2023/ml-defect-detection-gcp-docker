@@ -21,11 +21,11 @@ REPORTS_DIR = PROJECT_ROOT / "reports"
 # Google Cloud Storage
 # ------------------------------------------------------------------
 
-GCP_PROJECT = "YOUR_GCP_PROJECT"
+GCP_PROJECT = "ml-defect-detection-rob"
 
-GCS_BUCKET = "YOUR_BUCKET_NAME"
+GCS_BUCKET = "ml-defect-detection-rsanmiguel2023"
 
-DATASET_PREFIX = "mvtec-ad"
+DATASET_PREFIX = "raw/mvtec_ad"
 
 # ------------------------------------------------------------------
 # Dataset
