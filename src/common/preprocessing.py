@@ -1,5 +1,5 @@
 """
-Preprocess MVTec AD into binary classification folders.
+Preprocess MVTec AD into category-specific binary classification folders.
 """
 
 import random
@@ -14,7 +14,11 @@ from .config import (
     RANDOM_SEED,
 )
 
-SOURCE_CATEGORY = "bottle"
+CATEGORIES = [
+    "bottle", "cable", "capsule", "carpet", "grid",
+    "hazelnut", "leather", "metal_nut", "pill", "screw",
+    "tile", "toothbrush", "transistor", "wood", "zipper",
+]
 
 
 def copy_images(images, destination: Path):
@@ -25,12 +29,23 @@ def copy_images(images, destination: Path):
         shutil.copy2(image_path, target_path)
 
 
-def create_binary_classification_dataset(category: str = SOURCE_CATEGORY):
-    random.seed(RANDOM_SEED)
+def split_images(images):
+    train_end = int(len(images) * TRAIN_SPLIT)
+    val_end = int(len(images) * (TRAIN_SPLIT + VALIDATION_SPLIT))
 
+    return (
+        images[:train_end],
+        images[train_end:val_end],
+        images[val_end:],
+    )
+
+
+def process_category(category: str):
     raw_category_path = RAW_DATA_DIR / "mvtec_ad" / category
+    processed_category_path = PROCESSED_DATA_DIR / category
 
     good_images = list((raw_category_path / "train" / "good").glob("*.png"))
+
     defective_images = [
         path
         for path in (raw_category_path / "test").glob("*/*.png")
@@ -40,35 +55,33 @@ def create_binary_classification_dataset(category: str = SOURCE_CATEGORY):
     random.shuffle(good_images)
     random.shuffle(defective_images)
 
-    def split_images(images):
-        train_end = int(len(images) * TRAIN_SPLIT)
-        val_end = int(len(images) * (TRAIN_SPLIT + VALIDATION_SPLIT))
-
-        return (
-            images[:train_end],
-            images[train_end:val_end],
-            images[val_end:],
-        )
-
     good_train, good_val, good_test = split_images(good_images)
     defect_train, defect_val, defect_test = split_images(defective_images)
 
-    if PROCESSED_DATA_DIR.exists():
-        shutil.rmtree(PROCESSED_DATA_DIR)
+    if processed_category_path.exists():
+        shutil.rmtree(processed_category_path)
 
-    copy_images(good_train, PROCESSED_DATA_DIR / "train" / "good")
-    copy_images(good_val, PROCESSED_DATA_DIR / "validation" / "good")
-    copy_images(good_test, PROCESSED_DATA_DIR / "test" / "good")
+    copy_images(good_train, processed_category_path / "train" / "good")
+    copy_images(good_val, processed_category_path / "validation" / "good")
+    copy_images(good_test, processed_category_path / "test" / "good")
 
-    copy_images(defect_train, PROCESSED_DATA_DIR / "train" / "defective")
-    copy_images(defect_val, PROCESSED_DATA_DIR / "validation" / "defective")
-    copy_images(defect_test, PROCESSED_DATA_DIR / "test" / "defective")
+    copy_images(defect_train, processed_category_path / "train" / "defective")
+    copy_images(defect_val, processed_category_path / "validation" / "defective")
+    copy_images(defect_test, processed_category_path / "test" / "defective")
 
-    print("Processed dataset created.")
-    print(f"Category: {category}")
-    print(f"Good images: {len(good_images)}")
-    print(f"Defective images: {len(defective_images)}")
+    print(
+        f"{category}: good={len(good_images)}, defective={len(defective_images)}"
+    )
+
+
+def create_all_binary_datasets():
+    random.seed(RANDOM_SEED)
+
+    for category in CATEGORIES:
+        process_category(category)
+
+    print("All category datasets created.")
 
 
 if __name__ == "__main__":
-    create_binary_classification_dataset()
+    create_all_binary_datasets()
