@@ -17,7 +17,7 @@ def evaluate_tensorflow_model():
     Evaluate the trained TensorFlow model and save metrics.
     """
 
-    dataset_path = DATA_DIR / "processed"
+    dataset_path = DATA_DIR / "processed" / "bottle"
     model_path = MODEL_DIR / MODEL_FILENAME
 
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
