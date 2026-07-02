@@ -17,14 +17,19 @@ def main():
         required=True,
         help="Choose whether to train or evaluate the TensorFlow model"
     )
+    parser.add_argument(
+        "--category",
+       default="bottle",
+        help="MVTec AD category to train or evaluate"       
+    )
 
     args = parser.parse_args()
 
     if args.mode == "train":
-        train_tensorflow_model()
+        train_tensorflow_model(category=args.category)
 
     if args.mode == "evaluate":
-        evaluate_tensorflow_model()
+        evaluate_tensorflow_model(category=args.category)
 
 
 if __name__ == "__main__":
