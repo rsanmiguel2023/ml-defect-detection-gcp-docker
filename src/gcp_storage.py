@@ -1,9 +1,11 @@
 """Utilities for working with Google Cloud Storage."""
 
 from pathlib import Path
+
 from google.cloud import storage
 
-from src.config import GCP_BUCKET_NAME, GCP_RAW_PREFIX, LOCAL_DATA_DIR, require_env
+from src.config import (GCP_BUCKET_NAME, GCP_RAW_PREFIX, LOCAL_DATA_DIR,
+                        require_env)
 
 
 def get_storage_client() -> storage.Client:
@@ -25,7 +27,9 @@ def list_blobs(prefix: str = GCP_RAW_PREFIX, limit: int = 20) -> list[str]:
     return [blob.name for blob in blobs]
 
 
-def download_prefix(prefix: str = GCP_RAW_PREFIX, destination: Path = LOCAL_DATA_DIR) -> int:
+def download_prefix(
+    prefix: str = GCP_RAW_PREFIX, destination: Path = LOCAL_DATA_DIR
+) -> int:
     """Download objects from a GCS prefix into a local folder."""
     bucket = get_bucket()
     count = 0

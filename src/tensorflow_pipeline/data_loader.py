@@ -6,7 +6,7 @@ Loads preprocessed train and validation image folders.
 
 import tensorflow as tf
 
-from .config import IMAGE_SIZE, BATCH_SIZE
+from .config import BATCH_SIZE, IMAGE_SIZE
 
 
 def load_datasets(dataset_path: str):

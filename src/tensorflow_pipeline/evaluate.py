@@ -4,14 +4,12 @@ Evaluate TensorFlow EfficientNetB0 model.
 
 import csv
 
+import mlflow
 import numpy as np
 import tensorflow as tf
-
-import mlflow
-
 from sklearn.metrics import classification_report, confusion_matrix
 
-from .config import DATA_DIR, MODEL_DIR, REPORT_DIR, MODEL_FILENAME
+from .config import DATA_DIR, MODEL_DIR, MODEL_FILENAME, REPORT_DIR
 from .data_loader import load_datasets
 
 
@@ -40,10 +38,7 @@ def evaluate_tensorflow_model(category: str = "bottle"):
         y_pred.extend(predicted_classes)
 
     report = classification_report(
-        y_true,
-        y_pred,
-        target_names=class_names,
-        output_dict=True
+        y_true, y_pred, target_names=class_names, output_dict=True
     )
 
     mlflow.set_experiment("Industrial Defect Detection")
@@ -69,13 +64,15 @@ def evaluate_tensorflow_model(category: str = "bottle"):
 
             for class_name, metrics in report.items():
                 if isinstance(metrics, dict):
-                    writer.writerow([
-                        class_name,
-                        metrics.get("precision"),
-                        metrics.get("recall"),
-                        metrics.get("f1-score"),
-                        metrics.get("support")
-                    ])
+                    writer.writerow(
+                        [
+                            class_name,
+                            metrics.get("precision"),
+                            metrics.get("recall"),
+                            metrics.get("f1-score"),
+                            metrics.get("support"),
+                        ]
+                    )
 
         matrix = confusion_matrix(y_true, y_pred)
         matrix_path = REPORT_DIR / "tensorflow_confusion_matrix.csv"

@@ -6,18 +6,25 @@ import random
 import shutil
 from pathlib import Path
 
-from .config import (
-    RAW_DATA_DIR,
-    PROCESSED_DATA_DIR,
-    TRAIN_SPLIT,
-    VALIDATION_SPLIT,
-    RANDOM_SEED,
-)
+from .config import (PROCESSED_DATA_DIR, RANDOM_SEED, RAW_DATA_DIR,
+                     TRAIN_SPLIT, VALIDATION_SPLIT)
 
 CATEGORIES = [
-    "bottle", "cable", "capsule", "carpet", "grid",
-    "hazelnut", "leather", "metal_nut", "pill", "screw",
-    "tile", "toothbrush", "transistor", "wood", "zipper",
+    "bottle",
+    "cable",
+    "capsule",
+    "carpet",
+    "grid",
+    "hazelnut",
+    "leather",
+    "metal_nut",
+    "pill",
+    "screw",
+    "tile",
+    "toothbrush",
+    "transistor",
+    "wood",
+    "zipper",
 ]
 
 
@@ -69,9 +76,7 @@ def process_category(category: str):
     copy_images(defect_val, processed_category_path / "validation" / "defective")
     copy_images(defect_test, processed_category_path / "test" / "defective")
 
-    print(
-        f"{category}: good={len(good_images)}, defective={len(defective_images)}"
-    )
+    print(f"{category}: good={len(good_images)}, defective={len(defective_images)}")
 
 
 def create_all_binary_datasets():
