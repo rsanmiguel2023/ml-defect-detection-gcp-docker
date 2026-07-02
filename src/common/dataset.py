@@ -3,16 +3,26 @@ Dataset ingestion, validation, and summary utilities for MVTec AD.
 """
 
 import json
-from pathlib import Path
 
-from .config import RAW_DATA_DIR, REPORTS_DIR, DATASET_PREFIX
+from .config import DATASET_PREFIX, RAW_DATA_DIR, REPORTS_DIR
 from .gcs import GCSStorage
 
-
 EXPECTED_CATEGORIES = [
-    "bottle", "cable", "capsule", "carpet", "grid",
-    "hazelnut", "leather", "metal_nut", "pill", "screw",
-    "tile", "toothbrush", "transistor", "wood", "zipper",
+    "bottle",
+    "cable",
+    "capsule",
+    "carpet",
+    "grid",
+    "hazelnut",
+    "leather",
+    "metal_nut",
+    "pill",
+    "screw",
+    "tile",
+    "toothbrush",
+    "transistor",
+    "wood",
+    "zipper",
 ]
 
 

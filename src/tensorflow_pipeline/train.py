@@ -2,17 +2,10 @@
 Train TensorFlow EfficientNetB0 model for defect classification.
 """
 
+import mlflow
 import tensorflow as tf
 
-import mlflow
-
-from .config import (
-    DATA_DIR,
-    MODEL_DIR,
-    REPORT_DIR,
-    EPOCHS,
-    MODEL_FILENAME
-)
+from .config import DATA_DIR, EPOCHS, MODEL_DIR, MODEL_FILENAME, REPORT_DIR
 from .data_loader import load_datasets
 from .model import build_efficientnet_model
 
@@ -33,26 +26,19 @@ def train_tensorflow_model(category: str = "bottle"):
 
     callbacks = [
         tf.keras.callbacks.EarlyStopping(
-            monitor="val_loss",
-            patience=3,
-            restore_best_weights=True
+            monitor="val_loss", patience=3, restore_best_weights=True
         ),
         tf.keras.callbacks.ModelCheckpoint(
             filepath=str(MODEL_DIR / MODEL_FILENAME),
             monitor="val_accuracy",
-            save_best_only=True
+            save_best_only=True,
         ),
         tf.keras.callbacks.ReduceLROnPlateau(
-            monitor="val_loss",
-            factor=0.2,
-            patience=2,
-            min_lr=1e-6
-        )
+            monitor="val_loss", factor=0.2, patience=2, min_lr=1e-6
+        ),
     ]
 
-
     mlflow.set_experiment("Industrial Defect Detection")
-
 
     with mlflow.start_run(run_name=f"tensorflow_efficientnet_{category}"):
         mlflow.log_param("framework", "TensorFlow")
@@ -61,10 +47,7 @@ def train_tensorflow_model(category: str = "bottle"):
         mlflow.log_param("epochs", EPOCHS)
 
         history = model.fit(
-            train_ds,
-            validation_data=validation_ds,
-            epochs=EPOCHS,
-            callbacks=callbacks
+            train_ds, validation_data=validation_ds, epochs=EPOCHS, callbacks=callbacks
         )
 
         final_epoch = len(history.history["accuracy"]) - 1

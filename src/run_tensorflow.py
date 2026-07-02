@@ -4,8 +4,8 @@ Command runner for TensorFlow pipeline.
 
 import argparse
 
-from tensorflow_pipeline.train import train_tensorflow_model
 from tensorflow_pipeline.evaluate import evaluate_tensorflow_model
+from tensorflow_pipeline.train import train_tensorflow_model
 
 
 def main():
@@ -15,12 +15,10 @@ def main():
         "--mode",
         choices=["train", "evaluate"],
         required=True,
-        help="Choose whether to train or evaluate the TensorFlow model"
+        help="Choose whether to train or evaluate the TensorFlow model",
     )
     parser.add_argument(
-        "--category",
-       default="bottle",
-        help="MVTec AD category to train or evaluate"       
+        "--category", default="bottle", help="MVTec AD category to train or evaluate"
     )
 
     args = parser.parse_args()

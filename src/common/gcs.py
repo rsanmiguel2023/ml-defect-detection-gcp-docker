@@ -3,6 +3,7 @@ Google Cloud Storage client for dataset and model management.
 """
 
 from pathlib import Path
+
 from google.cloud import storage
 
 from .config import GCP_PROJECT, GCS_BUCKET
@@ -18,30 +19,17 @@ class GCSStorage:
 
     def list_objects(self, prefix: str):
 
-        blobs = self.client.list_blobs(
-            self.bucket,
-            prefix=prefix
-        )
+        blobs = self.client.list_blobs(self.bucket, prefix=prefix)
 
         return [blob.name for blob in blobs]
 
-    def download_folder(
-        self,
-        prefix: str,
-        local_directory: Path
-    ):
+    def download_folder(self, prefix: str, local_directory: Path):
 
-        local_directory.mkdir(
-            parents=True,
-            exist_ok=True
-        )
+        local_directory.mkdir(parents=True, exist_ok=True)
 
         downloaded = 0
 
-        blobs = self.client.list_blobs(
-            self.bucket,
-            prefix=prefix
-        )
+        blobs = self.client.list_blobs(self.bucket, prefix=prefix)
 
         for blob in blobs:
 
@@ -52,10 +40,7 @@ class GCSStorage:
 
             destination = local_directory / relative
 
-            destination.parent.mkdir(
-                parents=True,
-                exist_ok=True
-            )
+            destination.parent.mkdir(parents=True, exist_ok=True)
 
             if destination.exists():
                 continue
@@ -66,11 +51,7 @@ class GCSStorage:
 
         return downloaded
 
-    def upload_file(
-        self,
-        local_file: Path,
-        destination: str
-    ):
+    def upload_file(self, local_file: Path, destination: str):
 
         blob = self.bucket.blob(destination)
 
