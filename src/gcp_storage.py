@@ -4,8 +4,7 @@ from pathlib import Path
 
 from google.cloud import storage
 
-from src.config import (GCP_BUCKET_NAME, GCP_RAW_PREFIX, LOCAL_DATA_DIR,
-                        require_env)
+from src.config import GCP_BUCKET_NAME, GCP_RAW_PREFIX, LOCAL_DATA_DIR, require_env
 
 
 def get_storage_client() -> storage.Client:

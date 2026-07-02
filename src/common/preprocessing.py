@@ -6,8 +6,13 @@ import random
 import shutil
 from pathlib import Path
 
-from .config import (PROCESSED_DATA_DIR, RANDOM_SEED, RAW_DATA_DIR,
-                     TRAIN_SPLIT, VALIDATION_SPLIT)
+from .config import (
+    PROCESSED_DATA_DIR,
+    RANDOM_SEED,
+    RAW_DATA_DIR,
+    TRAIN_SPLIT,
+    VALIDATION_SPLIT,
+)
 
 CATEGORIES = [
     "bottle",
