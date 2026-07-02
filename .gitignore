@@ -28,3 +28,6 @@ reports/metrics.json
 .idea/
 secrets/
 *.json
+
+#Mlruns
+mlruns/

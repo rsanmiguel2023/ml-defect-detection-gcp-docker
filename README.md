@@ -128,13 +128,24 @@ This keeps large dataset files and credentials out of GitHub.
 
 This stage trains an EfficientNetB0 image classification model using TensorFlow.
 
-### Run training locally
+## Run training locally
 
 ```bash
 python src/run_tensorflow.py --mode train
-
-### Run evaluation locally
+```
+## Run evaluation locally
 
 ```bash
 python src/run_tensorflow.py --mode evaluate
+```
 
+
+## MLflow Experiment Tracking
+
+This project uses MLflow to track TensorFlow and PyTorch model experiments.
+
+### Start MLflow UI
+
+```bash
+mlflow ui
+```
