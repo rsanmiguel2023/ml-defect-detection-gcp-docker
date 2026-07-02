@@ -6,6 +6,9 @@ import csv
 
 import numpy as np
 import tensorflow as tf
+
+import mlflow
+
 from sklearn.metrics import classification_report, confusion_matrix
 
 from .config import DATA_DIR, MODEL_DIR, REPORT_DIR, MODEL_FILENAME
@@ -43,26 +46,44 @@ def evaluate_tensorflow_model(category: str = "bottle"):
         output_dict=True
     )
 
-    report_path = REPORT_DIR / "tensorflow_classification_report.csv"
+    mlflow.set_experiment("Industrial Defect Detection")
 
-    with open(report_path, "w", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerow(["class", "precision", "recall", "f1_score", "support"])
+    with mlflow.start_run(run_name=f"tensorflow_evaluation_{category}"):
+        mlflow.log_param("framework", "TensorFlow")
+        mlflow.log_param("model", "EfficientNetB0")
+        mlflow.log_param("category", category)
 
-        for class_name, metrics in report.items():
-            if isinstance(metrics, dict):
-                writer.writerow([
-                    class_name,
-                    metrics.get("precision"),
-                    metrics.get("recall"),
-                    metrics.get("f1-score"),
-                    metrics.get("support")
-                ])
+        accuracy = report["accuracy"]
+        macro_f1 = report["macro avg"]["f1-score"]
+        weighted_f1 = report["weighted avg"]["f1-score"]
 
-    matrix = confusion_matrix(y_true, y_pred)
-    matrix_path = REPORT_DIR / "tensorflow_confusion_matrix.csv"
+        mlflow.log_metric("accuracy", accuracy)
+        mlflow.log_metric("macro_f1", macro_f1)
+        mlflow.log_metric("weighted_f1", weighted_f1)
 
-    np.savetxt(matrix_path, matrix, delimiter=",", fmt="%d")
+        report_path = REPORT_DIR / "tensorflow_classification_report.csv"
+
+        with open(report_path, "w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+            writer.writerow(["class", "precision", "recall", "f1_score", "support"])
+
+            for class_name, metrics in report.items():
+                if isinstance(metrics, dict):
+                    writer.writerow([
+                        class_name,
+                        metrics.get("precision"),
+                        metrics.get("recall"),
+                        metrics.get("f1-score"),
+                        metrics.get("support")
+                    ])
+
+        matrix = confusion_matrix(y_true, y_pred)
+        matrix_path = REPORT_DIR / "tensorflow_confusion_matrix.csv"
+
+        np.savetxt(matrix_path, matrix, delimiter=",", fmt="%d")
+
+        mlflow.log_artifact(str(report_path))
+        mlflow.log_artifact(str(matrix_path))
 
     print(f"Classification report saved to: {report_path}")
     print(f"Confusion matrix saved to: {matrix_path}")
