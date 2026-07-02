@@ -15,7 +15,7 @@ def build_efficientnet_model(num_classes: int):
     base_model = tf.keras.applications.EfficientNetB0(
         include_top=False,
         weights="imagenet",
-        input_shape=(IMAGE_SIZE[0], IMAGE_SIZE[1], 3)
+        input_shape=(IMAGE_SIZE[0], IMAGE_SIZE[1], 3),
     )
 
     base_model.trainable = False
@@ -27,17 +27,14 @@ def build_efficientnet_model(num_classes: int):
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
     x = tf.keras.layers.Dropout(0.3)(x)
 
-    outputs = tf.keras.layers.Dense(
-        num_classes,
-        activation="softmax"
-    )(x)
+    outputs = tf.keras.layers.Dense(num_classes, activation="softmax")(x)
 
     model = tf.keras.Model(inputs, outputs)
 
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
         loss="sparse_categorical_crossentropy",
-        metrics=["accuracy"]
+        metrics=["accuracy"],
     )
 
     return model

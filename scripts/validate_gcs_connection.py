@@ -6,7 +6,9 @@ from src.gcp_storage import list_blobs
 
 def main() -> None:
     if not GCP_BUCKET_NAME:
-        raise SystemExit("GCP_BUCKET_NAME is missing. Create .env from .env.example first.")
+        raise SystemExit(
+            "GCP_BUCKET_NAME is missing. Create .env from .env.example first."
+        )
 
     print(f"Checking bucket: gs://{GCP_BUCKET_NAME}")
     print(f"Checking prefix: {GCP_RAW_PREFIX}")
@@ -14,7 +16,9 @@ def main() -> None:
     objects = list_blobs(prefix=GCP_RAW_PREFIX, limit=10)
 
     if not objects:
-        print("Connection succeeded, but no objects were found under the configured prefix.")
+        print(
+            "Connection succeeded, but no objects were found under the configured prefix."
+        )
         print("Upload the dataset before starting model training.")
         return
 
