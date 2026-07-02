@@ -4,8 +4,8 @@ Entry point for the PyTorch training pipeline.
 
 import argparse
 
-from pytorch_pipeline.evaluate import evaluate_pytorch_model
-from pytorch_pipeline.train import train_pytorch_model
+from src.pytorch_pipeline.evaluate import evaluate_pytorch_model
+from src.pytorch_pipeline.train import train_pytorch_model
 
 
 def main():
