@@ -2,9 +2,9 @@
 Train TensorFlow EfficientNetB0 model for defect classification.
 """
 
-from pathlib import Path
-
 import tensorflow as tf
+
+import mlflow
 
 from .config import (
     DATA_DIR,
@@ -50,12 +50,31 @@ def train_tensorflow_model(category: str = "bottle"):
         )
     ]
 
-    history = model.fit(
-        train_ds,
-        validation_data=validation_ds,
-        epochs=EPOCHS,
-        callbacks=callbacks
-    )
+
+    mlflow.set_experiment("Industrial Defect Detection")
+
+
+    with mlflow.start_run(run_name=f"tensorflow_efficientnet_{category}"):
+        mlflow.log_param("framework", "TensorFlow")
+        mlflow.log_param("model", "EfficientNetB0")
+        mlflow.log_param("category", category)
+        mlflow.log_param("epochs", EPOCHS)
+
+        history = model.fit(
+            train_ds,
+            validation_data=validation_ds,
+            epochs=EPOCHS,
+            callbacks=callbacks
+        )
+
+        final_epoch = len(history.history["accuracy"]) - 1
+
+        mlflow.log_metric("train_accuracy", history.history["accuracy"][final_epoch])
+        mlflow.log_metric("train_loss", history.history["loss"][final_epoch])
+        mlflow.log_metric("val_accuracy", history.history["val_accuracy"][final_epoch])
+        mlflow.log_metric("val_loss", history.history["val_loss"][final_epoch])
+
+        mlflow.log_artifact(str(MODEL_DIR / MODEL_FILENAME))
 
     history_path = REPORT_DIR / "tensorflow_training_history.csv"
 
