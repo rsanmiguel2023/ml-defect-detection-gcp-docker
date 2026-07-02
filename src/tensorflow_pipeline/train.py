@@ -17,12 +17,12 @@ from .data_loader import load_datasets
 from .model import build_efficientnet_model
 
 
-def train_tensorflow_model():
+def train_tensorflow_model(category: str = "bottle"):
     """
     Train and save the TensorFlow EfficientNetB0 model.
     """
 
-    dataset_path = DATA_DIR / "processed" / "bottle"
+    dataset_path = DATA_DIR / "processed" / category
 
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     REPORT_DIR.mkdir(parents=True, exist_ok=True)

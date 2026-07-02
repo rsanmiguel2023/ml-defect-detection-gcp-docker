@@ -12,12 +12,12 @@ from .config import DATA_DIR, MODEL_DIR, REPORT_DIR, MODEL_FILENAME
 from .data_loader import load_datasets
 
 
-def evaluate_tensorflow_model():
+def evaluate_tensorflow_model(category: str = "bottle"):
     """
     Evaluate the trained TensorFlow model and save metrics.
     """
 
-    dataset_path = DATA_DIR / "processed" / "bottle"
+    dataset_path = DATA_DIR / "processed" / category
     model_path = MODEL_DIR / MODEL_FILENAME
 
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
