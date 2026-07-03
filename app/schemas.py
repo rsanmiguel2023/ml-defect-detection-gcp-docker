@@ -22,3 +22,11 @@ class BatchPredictionResponse(BaseModel):
     framework: str
     category: str
     results: list[BatchPredictionItem]
+
+
+class EvaluationResponse(BaseModel):
+    framework: str
+    category: str
+    status: str
+    report_file: str
+    confusion_matrix_file: str

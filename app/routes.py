@@ -5,7 +5,8 @@ REST API routes.
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from app.inference import predict_batch_images, predict_image
-from app.schemas import BatchPredictionResponse, PredictionResponse
+from app.schemas import BatchPredictionResponse, EvaluationResponse, PredictionResponse
+from app.services import run_model_evaluation
 
 router = APIRouter()
 
@@ -72,4 +73,25 @@ async def predict_batch(
         raise HTTPException(
             status_code=500,
             detail=f"Batch prediction failed: {str(error)}",
+        ) from error
+
+
+@router.post("/evaluate", response_model=EvaluationResponse)
+async def evaluate(
+    framework: str = Form("tensorflow"),
+    category: str = Form("bottle"),
+):
+    try:
+        return run_model_evaluation(
+            framework=framework,
+            category=category,
+        )
+
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Evaluation failed: {str(error)}",
         ) from error
