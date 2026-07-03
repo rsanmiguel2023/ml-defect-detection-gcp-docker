@@ -4,8 +4,8 @@ REST API routes.
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
-from app.inference import predict_image
-from app.schemas import PredictionResponse
+from app.inference import predict_batch_images, predict_image
+from app.schemas import BatchPredictionResponse, PredictionResponse
 
 router = APIRouter()
 
@@ -41,4 +41,35 @@ async def predict(
         raise HTTPException(
             status_code=500,
             detail=f"Prediction failed: {str(error)}",
+        ) from error
+
+
+@router.post("/predict-batch", response_model=BatchPredictionResponse)
+async def predict_batch(
+    files: list[UploadFile] = File(...),
+    framework: str = Form("tensorflow"),
+    category: str = Form("bottle"),
+):
+    try:
+        image_files = []
+
+        for file in files:
+            image_bytes = await file.read()
+            image_files.append((file.filename, image_bytes))
+
+        result = predict_batch_images(
+            files=image_files,
+            framework=framework,
+            category=category,
+        )
+
+        return BatchPredictionResponse(**result)
+
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Batch prediction failed: {str(error)}",
         ) from error

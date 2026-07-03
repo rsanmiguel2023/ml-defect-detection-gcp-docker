@@ -76,3 +76,28 @@ def predict_image(image_bytes: bytes, framework: str, category: str):
         "prediction": prediction,
         "confidence": confidence,
     }
+
+
+def predict_batch_images(files: list, framework: str, category: str):
+    results = []
+
+    for filename, image_bytes in files:
+        prediction = predict_image(
+            image_bytes=image_bytes,
+            framework=framework,
+            category=category,
+        )
+
+        results.append(
+            {
+                "filename": filename,
+                "prediction": prediction["prediction"],
+                "confidence": prediction["confidence"],
+            }
+        )
+
+    return {
+        "framework": framework,
+        "category": category,
+        "results": results,
+    }
