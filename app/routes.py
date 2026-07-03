@@ -25,6 +25,7 @@ async def predict(
     file: UploadFile = File(...),
     framework: str = Form("tensorflow"),
     category: str = Form("bottle"),
+    model_version: str = Form("v1"),
 ):
     try:
         image_bytes = await file.read()
@@ -32,6 +33,7 @@ async def predict(
             image_bytes=image_bytes,
             framework=framework,
             category=category,
+            model_version=model_version,
         )
         return PredictionResponse(**result)
 
@@ -50,6 +52,7 @@ async def predict_batch(
     files: list[UploadFile] = File(...),
     framework: str = Form("tensorflow"),
     category: str = Form("bottle"),
+    model_version: str = Form("v1"),
 ):
     try:
         image_files = []
@@ -62,6 +65,7 @@ async def predict_batch(
             files=image_files,
             framework=framework,
             category=category,
+            model_version=model_version,
         )
 
         return BatchPredictionResponse(**result)

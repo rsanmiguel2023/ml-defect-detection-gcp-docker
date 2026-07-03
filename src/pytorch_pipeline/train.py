@@ -9,20 +9,27 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+from app.config import DEFAULT_MODEL_VERSION
 from src.common.config import PROCESSED_DATA_DIR
 from src.pytorch_pipeline.data_loader import load_pytorch_datasets
 from src.pytorch_pipeline.model import build_resnet18_model
 
 MODEL_DIR = Path("models")
-MODEL_FILENAME = "resnet18_pytorch.pt"
 EPOCHS = 10
 LEARNING_RATE = 0.0001
 BATCH_SIZE = 32
 
 
-def train_pytorch_model(category: str = "bottle"):
+def train_pytorch_model(
+    category: str = "bottle",
+    model_version: str = DEFAULT_MODEL_VERSION,
+):
     dataset_path = PROCESSED_DATA_DIR / category
-    MODEL_DIR.mkdir(parents=True, exist_ok=True)
+
+    versioned_model_dir = MODEL_DIR / "pytorch" / category / model_version
+    versioned_model_dir.mkdir(parents=True, exist_ok=True)
+
+    model_path = versioned_model_dir / "model.pt"
 
     train_loader, validation_loader, class_names, device = load_pytorch_datasets(
         dataset_path=dataset_path,
@@ -37,10 +44,11 @@ def train_pytorch_model(category: str = "bottle"):
 
     mlflow.set_experiment("Industrial Defect Detection")
 
-    with mlflow.start_run(run_name=f"pytorch_resnet18_{category}"):
+    with mlflow.start_run(run_name=f"pytorch_resnet18_{category}_{model_version}"):
         mlflow.log_param("framework", "PyTorch")
         mlflow.log_param("model", "ResNet18")
         mlflow.log_param("category", category)
+        mlflow.log_param("model_version", model_version)
         mlflow.log_param("epochs", EPOCHS)
         mlflow.log_param("learning_rate", LEARNING_RATE)
         mlflow.log_param("batch_size", BATCH_SIZE)
@@ -56,7 +64,6 @@ def train_pytorch_model(category: str = "bottle"):
                 labels = labels.to(device)
 
                 optimizer.zero_grad()
-
                 outputs = model(images)
                 loss = criterion(outputs, labels)
 
@@ -107,9 +114,7 @@ def train_pytorch_model(category: str = "bottle"):
                 f"val_acc={val_accuracy:.4f}"
             )
 
-        model_path = MODEL_DIR / MODEL_FILENAME
         torch.save(model.state_dict(), model_path)
-
         mlflow.log_artifact(str(model_path))
 
         print(f"PyTorch model saved to: {model_path}")
