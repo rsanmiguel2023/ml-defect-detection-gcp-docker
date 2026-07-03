@@ -2,8 +2,9 @@
 REST API routes.
 """
 
-from fastapi import APIRouter, File, Form, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
+from app.inference import predict_image
 from app.schemas import PredictionResponse
 
 router = APIRouter()
@@ -24,9 +25,20 @@ async def predict(
     framework: str = Form("tensorflow"),
     category: str = Form("bottle"),
 ):
-    return PredictionResponse(
-        framework=framework,
-        category=category,
-        prediction="placeholder",
-        confidence=0.0,
-    )
+    try:
+        image_bytes = await file.read()
+        result = predict_image(
+            image_bytes=image_bytes,
+            framework=framework,
+            category=category,
+        )
+        return PredictionResponse(**result)
+
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Prediction failed: {str(error)}",
+        ) from error
