@@ -25,4 +25,4 @@ USER appuser
 
 EXPOSE 8000
 
-CMD ["python", "-m", "src.run_tensorflow", "--mode", "evaluate", "--category", "bottle"]
+CMD ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]
