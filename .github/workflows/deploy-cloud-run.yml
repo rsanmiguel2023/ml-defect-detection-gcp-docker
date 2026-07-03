@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feat/github-actions-deploy
   workflow_dispatch:
 
 env:
