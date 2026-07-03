@@ -1,5 +1,5 @@
 """
-Model registry for loading and caching versioned TensorFlow and PyTorch models.
+Model registry for loading, caching, and resolving versioned ML models.
 """
 
 import logging
@@ -25,6 +25,40 @@ class ModelRegistry:
     def _cache_key(self, framework: str, category: str, version: str) -> str:
         return f"{framework}:{category}:{version}"
 
+    def _model_dir(self, framework: str, category: str) -> Path:
+        return MODEL_ROOT / framework / category
+
+    def list_versions(self, framework: str, category: str) -> list[str]:
+        model_dir = self._model_dir(framework, category)
+
+        if not model_dir.exists():
+            return []
+
+        return sorted([path.name for path in model_dir.iterdir() if path.is_dir()])
+
+    def resolve_version(
+        self,
+        framework: str,
+        category: str,
+        version: str = DEFAULT_MODEL_VERSION,
+    ) -> str:
+        versions = self.list_versions(framework, category)
+
+        if not versions:
+            raise FileNotFoundError(
+                f"No model versions found for {framework}/{category}"
+            )
+
+        if version == "latest":
+            return versions[-1]
+
+        if version not in versions:
+            raise FileNotFoundError(
+                f"Model version '{version}' not found for {framework}/{category}"
+            )
+
+        return version
+
     def _tensorflow_path(self, category: str, version: str) -> Path:
         return MODEL_ROOT / "tensorflow" / category / version / "model.keras"
 
@@ -36,11 +70,11 @@ class ModelRegistry:
         category: str,
         version: str = DEFAULT_MODEL_VERSION,
     ):
-        key = self._cache_key("tensorflow", category, version)
+        resolved_version = self.resolve_version("tensorflow", category, version)
+        key = self._cache_key("tensorflow", category, resolved_version)
 
         if key not in self._cache:
-            model_path = self._tensorflow_path(category, version)
-
+            model_path = self._tensorflow_path(category, resolved_version)
             logger.info("Loading TensorFlow model from %s", model_path)
 
             self._cache[key] = tf.keras.models.load_model(model_path)
@@ -52,11 +86,11 @@ class ModelRegistry:
         category: str,
         version: str = DEFAULT_MODEL_VERSION,
     ):
-        key = self._cache_key("pytorch", category, version)
+        resolved_version = self.resolve_version("pytorch", category, version)
+        key = self._cache_key("pytorch", category, resolved_version)
 
         if key not in self._cache:
-            model_path = self._pytorch_path(category, version)
-
+            model_path = self._pytorch_path(category, resolved_version)
             logger.info("Loading PyTorch model from %s", model_path)
 
             model = build_resnet18_model(num_classes=2)
