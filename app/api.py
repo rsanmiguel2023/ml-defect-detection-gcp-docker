@@ -4,6 +4,7 @@ FastAPI application entry point.
 
 from fastapi import FastAPI
 
+from app.observability import RequestContextMiddleware
 from app.routes import router
 
 app = FastAPI(
@@ -11,6 +12,8 @@ app = FastAPI(
     version="1.0.0",
     description="TensorFlow and PyTorch industrial defect detection service.",
 )
+
+app.add_middleware(RequestContextMiddleware)
 
 app.include_router(router)
 

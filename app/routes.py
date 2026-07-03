@@ -119,3 +119,26 @@ async def evaluate(
             status_code=500,
             detail=f"Evaluation failed: {str(error)}",
         ) from error
+
+
+@router.get("/ready")
+def ready():
+    return {
+        "status": "ready",
+    }
+
+
+@router.get("/cache")
+def cache():
+    return registry.cache_stats()
+
+
+@router.get("/metrics")
+def metrics():
+    stats = registry.cache_stats()
+
+    return {
+        "cached_models": stats["cached_models"],
+        "cache_hits": stats["cache_hits"],
+        "cache_misses": stats["cache_misses"],
+    }

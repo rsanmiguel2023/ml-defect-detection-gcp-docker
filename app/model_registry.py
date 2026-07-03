@@ -21,6 +21,8 @@ class ModelRegistry:
 
     def __init__(self):
         self._cache = {}
+        self.cache_hits = 0
+        self.cache_misses = 0
 
     def _cache_key(self, framework: str, category: str, version: str) -> str:
         return f"{framework}:{category}:{version}"
@@ -73,12 +75,15 @@ class ModelRegistry:
         resolved_version = self.resolve_version("tensorflow", category, version)
         key = self._cache_key("tensorflow", category, resolved_version)
 
-        if key not in self._cache:
-            model_path = self._tensorflow_path(category, resolved_version)
-            logger.info("Loading TensorFlow model from %s", model_path)
+        if key in self._cache:
+            self.cache_hits += 1
+            return self._cache[key]
 
-            self._cache[key] = tf.keras.models.load_model(model_path)
+        self.cache_misses += 1
+        model_path = self._tensorflow_path(category, resolved_version)
+        logger.info("Loading TensorFlow model from %s", model_path)
 
+        self._cache[key] = tf.keras.models.load_model(model_path)
         return self._cache[key]
 
     def load_pytorch(
@@ -89,17 +94,28 @@ class ModelRegistry:
         resolved_version = self.resolve_version("pytorch", category, version)
         key = self._cache_key("pytorch", category, resolved_version)
 
-        if key not in self._cache:
-            model_path = self._pytorch_path(category, resolved_version)
-            logger.info("Loading PyTorch model from %s", model_path)
+        if key in self._cache:
+            self.cache_hits += 1
+            return self._cache[key]
 
-            model = build_resnet18_model(num_classes=2)
-            model.load_state_dict(torch.load(model_path, map_location="cpu"))
-            model.eval()
+        self.cache_misses += 1
+        model_path = self._pytorch_path(category, resolved_version)
+        logger.info("Loading PyTorch model from %s", model_path)
 
-            self._cache[key] = model
+        model = build_resnet18_model(num_classes=2)
+        model.load_state_dict(torch.load(model_path, map_location="cpu"))
+        model.eval()
 
+        self._cache[key] = model
         return self._cache[key]
+
+    def cache_stats(self) -> dict:
+        return {
+            "cached_models": len(self._cache),
+            "cache_hits": self.cache_hits,
+            "cache_misses": self.cache_misses,
+            "cache_keys": list(self._cache.keys()),
+        }
 
 
 registry = ModelRegistry()

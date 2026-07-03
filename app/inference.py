@@ -2,6 +2,7 @@
 Inference utilities for TensorFlow and PyTorch models.
 """
 
+import time
 from io import BytesIO
 
 import numpy as np
@@ -11,6 +12,7 @@ from torchvision import transforms
 
 from app.config import DEFAULT_MODEL_VERSION
 from app.model_registry import registry
+from app.observability import log_json
 
 CLASS_NAMES = ["defective", "good"]
 
@@ -73,16 +75,31 @@ def predict_image(
     category: str,
     model_version: str = DEFAULT_MODEL_VERSION,
 ):
+    start_time = time.perf_counter()
+
     image = load_image(image_bytes)
 
     framework = framework.lower()
 
     if framework == "tensorflow":
-        prediction, confidence = predict_tensorflow(image, category)
+        prediction, confidence = predict_tensorflow(image, category, model_version)
     elif framework == "pytorch":
-        prediction, confidence = predict_pytorch(image, category)
+        prediction, confidence = predict_pytorch(image, category, model_version)
     else:
         raise ValueError("framework must be either 'tensorflow' or 'pytorch'")
+
+    latency_ms = round((time.perf_counter() - start_time) * 1000, 2)
+
+    log_json(
+        "prediction_completed",
+        framework=framework,
+        category=category,
+        model_version=model_version,
+        prediction=prediction,
+        confidence=confidence,
+        latency_ms=latency_ms,
+        image_size_bytes=len(image_bytes),
+    )
 
     return {
         "framework": framework,
