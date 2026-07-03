@@ -1,38 +1,147 @@
+"""
+Streamlit dashboard for industrial defect detection.
+"""
+
+import requests
 import streamlit as st
 
-from src.config import settings
-from src.preprocess import summarize_dataset
+API_BASE_URL = "http://api:8000"
 
-st.set_page_config(page_title="Industrial Defect Detection", layout="wide")
+CATEGORIES = [
+    "bottle",
+    "cable",
+    "capsule",
+    "carpet",
+    "grid",
+    "hazelnut",
+    "leather",
+    "metal_nut",
+    "pill",
+    "screw",
+    "tile",
+    "toothbrush",
+    "transistor",
+    "wood",
+    "zipper",
+]
+
+st.set_page_config(
+    page_title="Industrial Defect Detection",
+    layout="centered",
+)
 
 st.title("Industrial Defect Detection")
-st.caption(
-    "Stage 1: GitHub-ready scaffold with GCP, Docker, TensorFlow, and PyTorch placeholders."
+st.write("TensorFlow and PyTorch defect detection using MVTec AD.")
+
+mode = st.radio(
+    "Mode",
+    ["Single Prediction", "Batch Prediction", "Evaluate Model"],
 )
 
-st.header("Project Status")
-st.write(
-    "This first version sets up the repository structure, Docker environment, "
-    "GCP configuration, and Streamlit shell. Model training will be added in stages."
+framework = st.selectbox(
+    "Framework",
+    ["tensorflow", "pytorch"],
 )
 
-st.header("Configuration")
-st.json(
-    {
-        "bucket": settings.gcp_bucket_name or "not configured",
-        "raw_prefix": settings.gcp_raw_prefix,
-        "local_data_dir": settings.local_data_dir,
-        "image_size": settings.image_size,
-        "batch_size": settings.batch_size,
-        "epochs": settings.epochs,
-    }
+category = st.selectbox(
+    "MVTec Category",
+    CATEGORIES,
 )
 
-st.header("Local Dataset Summary")
-summary = summarize_dataset(settings.local_data_dir)
-if summary:
-    st.dataframe(summary, use_container_width=True)
-else:
-    st.info(
-        "No local dataset found yet. Upload MVTec AD to GCS, then download it in Stage 2."
+if mode == "Single Prediction":
+    uploaded_file = st.file_uploader(
+        "Upload image",
+        type=["png", "jpg", "jpeg"],
     )
+
+    if uploaded_file is not None:
+        st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
+
+        if st.button("Predict"):
+            files = {
+                "file": (
+                    uploaded_file.name,
+                    uploaded_file.getvalue(),
+                    uploaded_file.type,
+                )
+            }
+
+            data = {
+                "framework": framework,
+                "category": category,
+            }
+
+            response = requests.post(
+                f"{API_BASE_URL}/predict",
+                files=files,
+                data=data,
+                timeout=60,
+            )
+
+            if response.status_code == 200:
+                result = response.json()
+
+                st.success(f"Prediction: {result['prediction']}")
+                st.metric("Confidence", f"{result['confidence']:.2%}")
+            else:
+                st.error(response.text)
+
+elif mode == "Batch Prediction":
+    uploaded_files = st.file_uploader(
+        "Upload multiple images",
+        type=["png", "jpg", "jpeg"],
+        accept_multiple_files=True,
+    )
+
+    if uploaded_files:
+        if st.button("Run Batch Prediction"):
+            files = [
+                (
+                    "files",
+                    (
+                        uploaded_file.name,
+                        uploaded_file.getvalue(),
+                        uploaded_file.type,
+                    ),
+                )
+                for uploaded_file in uploaded_files
+            ]
+
+            data = {
+                "framework": framework,
+                "category": category,
+            }
+
+            response = requests.post(
+                f"{API_BASE_URL}/predict-batch",
+                files=files,
+                data=data,
+                timeout=120,
+            )
+
+            if response.status_code == 200:
+                result = response.json()
+                st.success("Batch prediction completed.")
+                st.dataframe(result["results"])
+            else:
+                st.error(response.text)
+
+else:
+    if st.button("Run Evaluation"):
+        data = {
+            "framework": framework,
+            "category": category,
+        }
+
+        response = requests.post(
+            f"{API_BASE_URL}/evaluate",
+            data=data,
+            timeout=300,
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            st.success("Evaluation completed.")
+            st.json(result)
+        else:
+            st.error(response.text)

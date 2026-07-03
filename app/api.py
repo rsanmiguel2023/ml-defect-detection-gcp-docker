@@ -1,0 +1,30 @@
+"""
+FastAPI application entry point.
+"""
+
+from fastapi import FastAPI
+
+from app.routes import router
+
+app = FastAPI(
+    title="Industrial Defect Detection API",
+    version="1.0.0",
+    description="TensorFlow and PyTorch industrial defect detection service.",
+)
+
+app.include_router(router)
+
+
+@app.get("/")
+def root():
+    return {
+        "application": "Industrial Defect Detection",
+        "status": "running",
+    }
+
+
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy",
+    }
