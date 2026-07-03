@@ -10,17 +10,20 @@ import numpy as np
 import torch
 from sklearn.metrics import classification_report, confusion_matrix
 
+from app.config import DEFAULT_MODEL_VERSION
 from src.common.config import PROCESSED_DATA_DIR, REPORTS_DIR
 from src.pytorch_pipeline.data_loader import load_pytorch_datasets
 from src.pytorch_pipeline.model import build_resnet18_model
-from src.pytorch_pipeline.train import MODEL_FILENAME
 
 MODEL_DIR = Path("models")
 
 
-def evaluate_pytorch_model(category: str = "bottle"):
+def evaluate_pytorch_model(
+    category: str = "bottle",
+    model_version: str = DEFAULT_MODEL_VERSION,
+):
     dataset_path = PROCESSED_DATA_DIR / category
-    model_path = MODEL_DIR / MODEL_FILENAME
+    model_path = MODEL_DIR / "pytorch" / category / model_version / "model.pt"
 
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -80,10 +83,11 @@ def evaluate_pytorch_model(category: str = "bottle"):
 
     mlflow.set_experiment("Industrial Defect Detection")
 
-    with mlflow.start_run(run_name=f"pytorch_evaluation_{category}"):
+    with mlflow.start_run(run_name=f"pytorch_evaluation_{category}_{model_version}"):
         mlflow.log_param("framework", "PyTorch")
         mlflow.log_param("model", "ResNet18")
         mlflow.log_param("category", category)
+        mlflow.log_param("model_version", model_version)
 
         mlflow.log_metric("accuracy", report["accuracy"])
         mlflow.log_metric("macro_f1", report["macro avg"]["f1-score"])

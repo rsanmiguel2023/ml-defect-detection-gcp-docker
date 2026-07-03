@@ -9,6 +9,7 @@ import torch
 from PIL import Image
 from torchvision import transforms
 
+from app.config import DEFAULT_MODEL_VERSION
 from app.model_registry import registry
 
 CLASS_NAMES = ["defective", "good"]
@@ -19,8 +20,12 @@ def load_image(image_bytes: bytes) -> Image.Image:
     return image
 
 
-def predict_tensorflow(image: Image.Image, category: str):
-    model = registry.load_tensorflow(category)
+def predict_tensorflow(
+    image: Image.Image,
+    category: str,
+    model_version: str = DEFAULT_MODEL_VERSION,
+):
+    model = registry.load_tensorflow(category, model_version)
 
     image = image.resize((224, 224))
     image_array = np.array(image)
@@ -33,8 +38,12 @@ def predict_tensorflow(image: Image.Image, category: str):
     return CLASS_NAMES[predicted_index], confidence
 
 
-def predict_pytorch(image: Image.Image, category: str):
-    model = registry.load_pytorch(category)
+def predict_pytorch(
+    image: Image.Image,
+    category: str,
+    model_version: str = DEFAULT_MODEL_VERSION,
+):
+    model = registry.load_pytorch(category, model_version)
 
     transform = transforms.Compose(
         [
@@ -58,7 +67,12 @@ def predict_pytorch(image: Image.Image, category: str):
     return CLASS_NAMES[predicted_index], confidence
 
 
-def predict_image(image_bytes: bytes, framework: str, category: str):
+def predict_image(
+    image_bytes: bytes,
+    framework: str,
+    category: str,
+    model_version: str = DEFAULT_MODEL_VERSION,
+):
     image = load_image(image_bytes)
 
     framework = framework.lower()
@@ -73,12 +87,18 @@ def predict_image(image_bytes: bytes, framework: str, category: str):
     return {
         "framework": framework,
         "category": category,
+        "model_version": model_version,
         "prediction": prediction,
         "confidence": confidence,
     }
 
 
-def predict_batch_images(files: list, framework: str, category: str):
+def predict_batch_images(
+    files: list,
+    framework: str,
+    category: str,
+    model_version: str = DEFAULT_MODEL_VERSION,
+):
     results = []
 
     for filename, image_bytes in files:
@@ -86,6 +106,7 @@ def predict_batch_images(files: list, framework: str, category: str):
             image_bytes=image_bytes,
             framework=framework,
             category=category,
+            model_version=model_version,
         )
 
         results.append(
@@ -99,5 +120,6 @@ def predict_batch_images(files: list, framework: str, category: str):
     return {
         "framework": framework,
         "category": category,
+        "model_version": model_version,
         "results": results,
     }

@@ -25,6 +25,18 @@ CATEGORIES = [
     "zipper",
 ]
 
+
+def get_available_models():
+    try:
+        response = requests.get(f"{API_BASE_URL}/models", timeout=30)
+        if response.status_code == 200:
+            return response.json()
+    except requests.RequestException:
+        return {}
+
+    return {}
+
+
 st.set_page_config(
     page_title="Industrial Defect Detection",
     layout="centered",
@@ -32,6 +44,8 @@ st.set_page_config(
 
 st.title("Industrial Defect Detection")
 st.write("TensorFlow and PyTorch defect detection using MVTec AD.")
+
+models = get_available_models()
 
 mode = st.radio(
     "Mode",
@@ -47,6 +61,17 @@ category = st.selectbox(
     "MVTec Category",
     CATEGORIES,
 )
+
+available_versions = models.get(framework, {}).get(category, [])
+
+if available_versions:
+    model_version = st.selectbox(
+        "Model Version",
+        ["latest"] + available_versions,
+    )
+else:
+    model_version = "latest"
+    st.warning("No saved model versions found yet for this framework/category.")
 
 if mode == "Single Prediction":
     uploaded_file = st.file_uploader(
@@ -69,6 +94,7 @@ if mode == "Single Prediction":
             data = {
                 "framework": framework,
                 "category": category,
+                "model_version": model_version,
             }
 
             response = requests.post(
@@ -83,6 +109,7 @@ if mode == "Single Prediction":
 
                 st.success(f"Prediction: {result['prediction']}")
                 st.metric("Confidence", f"{result['confidence']:.2%}")
+                st.write(f"Model Version: {result['model_version']}")
             else:
                 st.error(response.text)
 
@@ -110,6 +137,7 @@ elif mode == "Batch Prediction":
             data = {
                 "framework": framework,
                 "category": category,
+                "model_version": model_version,
             }
 
             response = requests.post(
@@ -122,6 +150,7 @@ elif mode == "Batch Prediction":
             if response.status_code == 200:
                 result = response.json()
                 st.success("Batch prediction completed.")
+                st.write(f"Model Version: {result['model_version']}")
                 st.dataframe(result["results"])
             else:
                 st.error(response.text)

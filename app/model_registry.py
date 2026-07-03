@@ -1,53 +1,105 @@
 """
-Model registry for loading and caching TensorFlow and PyTorch models.
+Model registry for loading, caching, and resolving versioned ML models.
 """
 
+import logging
 from pathlib import Path
 
 import tensorflow as tf
 import torch
 
+from app.config import DEFAULT_MODEL_VERSION, MODEL_ROOT
 from src.pytorch_pipeline.model import build_resnet18_model
 
-MODEL_DIR = Path("models")
+logger = logging.getLogger(__name__)
 
 
 class ModelRegistry:
     """
-    Loads and caches ML models.
+    Loads and caches ML models by framework, category, and version.
     """
 
     def __init__(self):
-        self._tensorflow_models = {}
-        self._pytorch_models = {}
+        self._cache = {}
 
-    def load_tensorflow(self, category: str):
-        if category not in self._tensorflow_models:
+    def _cache_key(self, framework: str, category: str, version: str) -> str:
+        return f"{framework}:{category}:{version}"
 
-            model_path = MODEL_DIR / "efficientnetb0_tf.keras"
+    def _model_dir(self, framework: str, category: str) -> Path:
+        return MODEL_ROOT / framework / category
 
-            self._tensorflow_models[category] = tf.keras.models.load_model(model_path)
+    def list_versions(self, framework: str, category: str) -> list[str]:
+        model_dir = self._model_dir(framework, category)
 
-        return self._tensorflow_models[category]
+        if not model_dir.exists():
+            return []
 
-    def load_pytorch(self, category: str):
+        return sorted([path.name for path in model_dir.iterdir() if path.is_dir()])
 
-        if category not in self._pytorch_models:
+    def resolve_version(
+        self,
+        framework: str,
+        category: str,
+        version: str = DEFAULT_MODEL_VERSION,
+    ) -> str:
+        versions = self.list_versions(framework, category)
 
-            model = build_resnet18_model(num_classes=2)
-
-            model.load_state_dict(
-                torch.load(
-                    MODEL_DIR / "resnet18_pytorch.pt",
-                    map_location="cpu",
-                )
+        if not versions:
+            raise FileNotFoundError(
+                f"No model versions found for {framework}/{category}"
             )
 
+        if version == "latest":
+            return versions[-1]
+
+        if version not in versions:
+            raise FileNotFoundError(
+                f"Model version '{version}' not found for {framework}/{category}"
+            )
+
+        return version
+
+    def _tensorflow_path(self, category: str, version: str) -> Path:
+        return MODEL_ROOT / "tensorflow" / category / version / "model.keras"
+
+    def _pytorch_path(self, category: str, version: str) -> Path:
+        return MODEL_ROOT / "pytorch" / category / version / "model.pt"
+
+    def load_tensorflow(
+        self,
+        category: str,
+        version: str = DEFAULT_MODEL_VERSION,
+    ):
+        resolved_version = self.resolve_version("tensorflow", category, version)
+        key = self._cache_key("tensorflow", category, resolved_version)
+
+        if key not in self._cache:
+            model_path = self._tensorflow_path(category, resolved_version)
+            logger.info("Loading TensorFlow model from %s", model_path)
+
+            self._cache[key] = tf.keras.models.load_model(model_path)
+
+        return self._cache[key]
+
+    def load_pytorch(
+        self,
+        category: str,
+        version: str = DEFAULT_MODEL_VERSION,
+    ):
+        resolved_version = self.resolve_version("pytorch", category, version)
+        key = self._cache_key("pytorch", category, resolved_version)
+
+        if key not in self._cache:
+            model_path = self._pytorch_path(category, resolved_version)
+            logger.info("Loading PyTorch model from %s", model_path)
+
+            model = build_resnet18_model(num_classes=2)
+            model.load_state_dict(torch.load(model_path, map_location="cpu"))
             model.eval()
 
-            self._pytorch_models[category] = model
+            self._cache[key] = model
 
-        return self._pytorch_models[category]
+        return self._cache[key]
 
 
 registry = ModelRegistry()

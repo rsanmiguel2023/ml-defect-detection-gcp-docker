@@ -8,6 +8,7 @@ from pydantic import BaseModel
 class PredictionResponse(BaseModel):
     framework: str
     category: str
+    model_version: str
     prediction: str
     confidence: float
 
@@ -21,6 +22,7 @@ class BatchPredictionItem(BaseModel):
 class BatchPredictionResponse(BaseModel):
     framework: str
     category: str
+    model_version: str
     results: list[BatchPredictionItem]
 
 

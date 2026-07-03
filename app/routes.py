@@ -4,7 +4,9 @@ REST API routes.
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
+from app.config import SUPPORTED_CATEGORIES, SUPPORTED_FRAMEWORKS
 from app.inference import predict_batch_images, predict_image
+from app.model_registry import registry
 from app.schemas import BatchPredictionResponse, EvaluationResponse, PredictionResponse
 from app.services import run_model_evaluation
 
@@ -20,19 +22,39 @@ def version():
     }
 
 
+@router.get("/models")
+def list_models():
+    models = {}
+
+    for framework in SUPPORTED_FRAMEWORKS:
+        models[framework] = {}
+
+        for category in SUPPORTED_CATEGORIES:
+            versions = registry.list_versions(framework, category)
+
+            if versions:
+                models[framework][category] = versions
+
+    return models
+
+
 @router.post("/predict", response_model=PredictionResponse)
 async def predict(
     file: UploadFile = File(...),
     framework: str = Form("tensorflow"),
     category: str = Form("bottle"),
+    model_version: str = Form("latest"),
 ):
     try:
         image_bytes = await file.read()
+
         result = predict_image(
             image_bytes=image_bytes,
             framework=framework,
             category=category,
+            model_version=model_version,
         )
+
         return PredictionResponse(**result)
 
     except ValueError as error:
@@ -50,6 +72,7 @@ async def predict_batch(
     files: list[UploadFile] = File(...),
     framework: str = Form("tensorflow"),
     category: str = Form("bottle"),
+    model_version: str = Form("latest"),
 ):
     try:
         image_files = []
@@ -62,6 +85,7 @@ async def predict_batch(
             files=image_files,
             framework=framework,
             category=category,
+            model_version=model_version,
         )
 
         return BatchPredictionResponse(**result)
