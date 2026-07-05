@@ -11,3 +11,15 @@ output "artifact_registry_location" {
   description = "Artifact Registry repository location"
   value       = google_artifact_registry_repository.docker_repository.location
 }
+
+output "storage_bucket_name" {
+  description = "Cloud Storage bucket"
+
+  value = google_storage_bucket.ml_storage.name
+}
+
+output "storage_bucket_url" {
+  description = "Cloud Storage URL"
+
+  value = google_storage_bucket.ml_storage.url
+}
