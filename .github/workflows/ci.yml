@@ -34,6 +34,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+    
+      - name: Run dependency security scan
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt
 
       - name: Verify Python Version
         run: python --version
