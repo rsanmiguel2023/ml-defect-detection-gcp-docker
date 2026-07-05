@@ -23,3 +23,8 @@ output "storage_bucket_url" {
 
   value = google_storage_bucket.ml_storage.url
 }
+
+output "cloud_run_service_account_email" {
+  description = "Cloud Run service account email"
+  value       = google_service_account.cloud_run_service_account.email
+}
