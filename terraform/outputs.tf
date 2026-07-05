@@ -1,6 +1,15 @@
 #
 # Outputs
 #
+output "project_id" {
+  description = "Google Cloud project ID"
+  value       = var.project_id
+}
+
+output "region" {
+  description = "Google Cloud region"
+  value       = var.region
+}
 
 output "artifact_registry_repository" {
   description = "Artifact Registry repository name"
@@ -13,15 +22,13 @@ output "artifact_registry_location" {
 }
 
 output "storage_bucket_name" {
-  description = "Cloud Storage bucket"
-
-  value = google_storage_bucket.ml_storage.name
+  description = "Cloud Storage bucket name"
+  value       = google_storage_bucket.ml_storage.name
 }
 
 output "storage_bucket_url" {
-  description = "Cloud Storage URL"
-
-  value = google_storage_bucket.ml_storage.url
+  description = "Cloud Storage bucket URL"
+  value       = google_storage_bucket.ml_storage.url
 }
 
 output "cloud_run_service_account_email" {
