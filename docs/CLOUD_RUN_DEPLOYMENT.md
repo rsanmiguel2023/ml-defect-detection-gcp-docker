@@ -1,22 +1,28 @@
 # Cloud Run Deployment
 
-## Service URL
+## Runtime Configuration
 
-https://ml-defect-api-1054269542973.us-central1.run.app
+| Setting | Value |
+|---|---|
+| Region | us-central1 |
+| Platform | Cloud Run |
+| CPU | 2 |
+| Memory | 4 GiB |
+| Timeout | 300 seconds |
+| Port | 8000 |
+| Authentication | Public (unauthenticated) |
 
-## Artifact Registry Image
-
-us-central1-docker.pkg.dev/ml-defect-detection-rob/ml-defect-detection/ml-defect-api:latest
-
-## Deployment Command
+## Deployment
 
 ```bash
 gcloud run deploy ml-defect-api \
-  --image us-central1-docker.pkg.dev/ml-defect-detection-rob/ml-defect-detection/ml-defect-api:latest \
-  --region us-central1 \
-  --platform managed \
-  --allow-unauthenticated \
-  --port 8000 \
-  --memory 4Gi \
-  --cpu 2 \
-  --timeout 300
+  --image us-central1-docker.pkg.dev/.../ml-defect-api:latest
+```
+
+## Validation
+
+- /health
+- /ready
+- /metrics
+- /cache
+- /models
