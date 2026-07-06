@@ -1,0 +1,4 @@
+category,framework,metric,model_version,value
+bottle,tensorflow,cold_inference_ms,v1,1544.23
+bottle,tensorflow,warm_avg_ms,v1,58.94
+bottle,tensorflow,warm_p95_ms,v1,65.97
