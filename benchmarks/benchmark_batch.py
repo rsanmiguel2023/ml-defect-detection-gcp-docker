@@ -19,7 +19,7 @@ from benchmarks.config import (
     RESULTS_DIR,
 )
 from benchmarks.create_sample_image import create_sample_image
-from benchmarks.utils import time_function, write_csv
+from benchmarks.utils import benchmark_metadata, time_function, write_csv, write_json
 
 
 def benchmark_batch_prediction(
@@ -30,6 +30,7 @@ def benchmark_batch_prediction(
     model_version: str,
 ) -> list[dict]:
     url = f"{api_base_url}/predict-batch"
+
     rows = []
 
     for batch_size in BATCH_SIZES:
@@ -60,6 +61,8 @@ def benchmark_batch_prediction(
             )
         )
 
+        response.raise_for_status()
+
         rows.append(
             {
                 "batch_size": batch_size,
@@ -74,16 +77,36 @@ def benchmark_batch_prediction(
 
     output_path = RESULTS_DIR / "batch_latency.csv"
     write_csv(output_path, rows)
+
+    metadata = benchmark_metadata()
+    metadata.update(
+        {
+            "api_base_url": api_base_url,
+            "framework": framework,
+            "category": category,
+            "model_version": model_version,
+            "batch_sizes": BATCH_SIZES,
+        }
+    )
+    write_json(RESULTS_DIR / "batch_benchmark_metadata.json", metadata)
+
     print(f"Batch benchmark results saved to: {output_path}")
+    print(
+        "Batch benchmark metadata saved to: "
+        f"{RESULTS_DIR / 'batch_benchmark_metadata.json'}"
+    )
+
     return rows
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Benchmark batch prediction endpoint")
+
     parser.add_argument("--api-base-url", default=DEFAULT_API_BASE_URL)
     parser.add_argument("--framework", default=DEFAULT_FRAMEWORK)
     parser.add_argument("--category", default=DEFAULT_CATEGORY)
     parser.add_argument("--model-version", default=DEFAULT_MODEL_VERSION)
+
     args = parser.parse_args()
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
