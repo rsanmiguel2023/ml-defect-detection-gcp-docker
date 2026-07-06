@@ -1,0 +1,6 @@
+batch_size,category,framework,images_per_second,latency_ms,model_version,status_code
+1,bottle,tensorflow,0.59,1685.2,latest,200
+5,bottle,tensorflow,17.06,293.12,latest,200
+10,bottle,tensorflow,18.22,548.8,latest,200
+25,bottle,tensorflow,18.9,1322.81,latest,200
+50,bottle,tensorflow,19.32,2588.11,latest,200

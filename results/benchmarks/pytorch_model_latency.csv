@@ -1,0 +1,4 @@
+category,framework,metric,model_version,value
+bottle,pytorch,cold_inference_ms,v1,369.19
+bottle,pytorch,warm_avg_ms,v1,10.81
+bottle,pytorch,warm_p95_ms,v1,13.1

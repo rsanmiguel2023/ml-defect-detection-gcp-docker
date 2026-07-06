@@ -1,0 +1,11 @@
+project_id = "ml-defect-detection-rob"
+
+region = "us-central1"
+
+artifact_registry_repository = "ml-defect-detection"
+
+cloud_run_service_name = "ml-defect-api"
+
+storage_bucket_name = "ml-defect-detection-rsanmiguel2023"
+
+environment = "dev"

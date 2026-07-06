@@ -26,3 +26,16 @@ reports/metrics.json
 .DS_Store
 .vscode/
 .idea/
+secrets/
+*.json
+
+#Mlruns
+mlruns/
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/crash.log
+terraform/terraform.tfvars
+terraform/.terraform.lock.hcl

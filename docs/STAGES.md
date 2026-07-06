@@ -1,31 +1,23 @@
 # Project Build Stages
 
-## Stage 1: GitHub scaffold
-- Repository structure
-- Dockerfile and docker-compose
-- GCP configuration
-- Streamlit shell
-- Placeholder training files
+| Stage | Deliverable |
+|---|---|
+| 1 | Project Scaffold |
+| 2 | Google Cloud Storage |
+| 3 | TensorFlow Training Pipeline |
+| 4 | PyTorch Training Pipeline |
+| 5 | Model Evaluation |
+| 6 | Streamlit Inference Application |
+| 7 | FastAPI REST API |
+| 8 | Docker Containerization |
+| 9 | Artifact Registry |
+| 10 | Cloud Run Deployment |
+| 11 | Terraform Infrastructure |
+| 12 | GitHub Actions CI/CD |
+| 13 | Security Hardening |
+| 14 | Observability |
+| 15 | Testing Framework |
+| 16 | Performance Benchmarking |
+| 17 | Production Monitoring & Operations |
 
-## Stage 2: GCP dataset workflow and TensorFlow model
-- Upload MVTec AD to Cloud Storage
-- Download selected category locally
-- Train TensorFlow EfficientNetB0
-- Save model artifact
-
-## Stage 3: PyTorch model
-- Train PyTorch ResNet18 on same classification task
-- Save model artifact
-
-## Stage 4: Evaluation
-- Compare accuracy, precision, recall, F1-score, inference time, and model size
-
-## Stage 5: Streamlit inference app
-- Upload image
-- Run TensorFlow and PyTorch predictions
-- Display model confidence
-
-## Stage 6: Cloud Run deployment
-- Build production Docker image
-- Push to Artifact Registry
-- Deploy to Cloud Run
+Each stage builds on the previous one and represents an independently reviewable pull request.
