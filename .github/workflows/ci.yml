@@ -64,3 +64,7 @@ jobs:
       - name: Check Import Sorting
         run: |
           isort --check-only src
+
+      - name: Run tests with coverage
+        run: |
+          pytest --cov=app --cov=src --cov-report=term-missing
